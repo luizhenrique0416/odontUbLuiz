@@ -102,7 +102,7 @@ function page_form(string $flash='', array $old=[]): string{
     <form method="post" action="/patients" novalidate>
       <div>
         <label for="name">Nome completo *</label>
-        <input type="text" id="name" name="name" value="{$name}" pattern="[a-zA-ZÀ-ÿ\s]+" title="O nome deve conter apenas letras e espaços. Sem números ou caracteres especiais." required>
+        <input type="text" id="name" name="name" value="{$name}" pattern="^[A-Za-zÀ-ÖØ-öø-ÿ\s]+$" title="O nome deve conter apenas letras e espaços. Sem números ou caracteres especiais." required>
       </div>
       <div>
         <label for="birth_date">Data de nascimento</label>
