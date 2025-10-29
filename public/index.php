@@ -2,22 +2,95 @@
 declare(strict_types=1);
 require __DIR__ . '/../vendor/autoload.php';
 use App\Health; use App\Db;
+
 $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
 $path   = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?: '/';
-function h(string $s): string { return htmlspecialchars($s, ENT_QUOTES, 'UTF-8'); }
-function json_out($data, int $code = 200): void { http_response_code($code); header('Content-Type: application/json; charset=utf-8'); echo json_encode($data, JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES); exit; }
-if ($method==='GET' && $path==='/health') { json_out(Health::status()+['ts'=>gmdate('c')]); }
-if ($method==='GET' && $path==='/db-check') { try { $pdo=Db::conn(); $one=$pdo->query('SELECT 1 AS ok')->fetch(); json_out(['db'=>'ok','result'=>$one]); } catch (Throwable $e) { json_out(['db'=>'error','message'=>$e->getMessage()],500);} }
-if ($method==='POST' && $path==='/patients') {
-  $name=trim($_POST['name']??''); $birth=trim($_POST['birth_date']??''); $phone=trim($_POST['phone']??''); $cell=trim($_POST['cellphone']??''); $email=trim($_POST['email']??'');
-  $err=[]; if (mb_strlen($name)<3) $err[]='Nome deve ter ao menos 3 caracteres.'; if ($email!=='' && !filter_var($email,FILTER_VALIDATE_EMAIL)) $err[]='E-mail inválido.'; if ($birth!=='' && !preg_match('/^\d{4}-\d{2}-\d{2}$/',$birth)) $err[]='Data no formato YYYY-MM-DD.';
-  if ($err){ $msg='<div class="alert error"><strong>Erro:</strong><ul><li>'.implode('</li><li>',array_map('h',$err)).'</li></ul></div>'; echo page_form($msg,compact('name','birth','phone','cell','email')); exit; }
-  try { $pdo=Db::conn(); $st=$pdo->prepare('INSERT INTO patients (name, birth_date, phone, cellphone, email) VALUES (:n,:b,:p,:c,:e)'); $st->execute([':n'=>$name?:null,':b'=>$birth?:null,':p'=>$phone?:null,':c'=>$cell?:null,':e'=>$email?:null]); echo page_form('<div class="alert success">Paciente cadastrado com sucesso.</div>'); exit; } catch (Throwable $e){ echo page_form('<div class="alert error"><strong>Erro ao salvar:</strong> '.h($e->getMessage()).'</div>',compact('name','birth','phone','cell','email')); exit; }
+
+function h(string $s): string { 
+  return htmlspecialchars($s, ENT_QUOTES, 'UTF-8'); 
 }
-if ($method==='GET' && $path==='/'){ echo page_form(); exit; }
-http_response_code(404); header('Content-Type: text/plain; charset=utf-8'); echo "Not Found";
+
+function json_out($data, int $code = 200): void { 
+  http_response_code($code); 
+  header('Content-Type: application/json; charset=utf-8'); 
+  echo json_encode($data, JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES); 
+  exit; 
+}
+
+if ($method==='GET' && $path==='/health') { 
+  json_out(Health::status()+['ts'=>gmdate('c')]); 
+}
+
+if ($method==='GET' && $path==='/db-check') { 
+  try { 
+    $pdo=Db::conn(); 
+    $one=$pdo->query('SELECT 1 AS ok')->fetch(); 
+    json_out(['db'=>'ok','result'=>$one]); 
+  } catch (Throwable $e) { 
+    json_out(['db'=>'error','message'=>$e->getMessage()],500);
+  } 
+}
+
+if ($method==='POST' && $path==='/patients') {
+  $name=trim($_POST['name']??''); 
+  $birth=trim($_POST['birth_date']??''); 
+  $phone=trim($_POST['phone']??''); 
+  $cell=trim($_POST['cellphone']??''); 
+  $email=trim($_POST['email']??'');
+  $err=[]; 
+
+  if (mb_strlen($name)<3) 
+    $err[]='Nome deve ter ao menos 3 caracteres.'; 
+
+  if ($name !== '' && !preg_match('/^[A-Za-zÀ-ÿ\s]+$/u', $name))
+    $err[] = 'Nome deve conter apenas letras e espaços. Sem números ou caracteres especiais.';
+  
+  if ($email!=='' && !filter_var($email,FILTER_VALIDATE_EMAIL)) 
+    $err[]='E-mail inválido.'; 
+  
+  if ($birth!=='' && !preg_match('/^\d{4}-\d{2}-\d{2}$/',$birth)) 
+    $err[]='Data no formato YYYY-MM-DD.';
+
+  if ($err){ 
+    $msg='<div class="alert error">
+            <strong>Erro:</strong>
+            <ul>
+              <li>'.implode('</li>
+              <li>',array_map('h',$err)).'</li>
+            </ul>
+          </div>'; 
+
+    echo page_form($msg,compact('name','birth','phone','cell','email')); 
+    exit; 
+  }
+
+  try { 
+    $pdo=Db::conn(); 
+    $st=$pdo->prepare('INSERT INTO patients (name, birth_date, phone, cellphone, email) VALUES (:n,:b,:p,:c,:e)'); 
+    $st->execute([':n'=>$name?:null,':b'=>$birth?:null,':p'=>$phone?:null,':c'=>$cell?:null,':e'=>$email?:null]); 
+    echo page_form('<div class="alert success">Paciente cadastrado com sucesso.</div>'); 
+    exit; 
+  } catch (Throwable $e){ 
+    echo page_form('<div class="alert error"><strong>Erro ao salvar:</strong> '.h($e->getMessage()).'</div>',compact('name','birth','phone','cell','email')); 
+    exit; 
+  }
+}
+
+if ($method==='GET' && $path==='/'){ 
+  echo page_form(); 
+  exit; 
+}
+
+http_response_code(404); 
+header('Content-Type: text/plain; charset=utf-8'); 
+echo "Not Found";
+
 function page_form(string $flash='', array $old=[]): string{
-  $name=h($old['name']??''); $birth=h($old['birth']??''); $phone=h($old['phone']??''); $cell=h($old['cell']??''); $email=h($old['email']??'');
+  $name=h($old['name']??''); 
+  $birth=h($old['birth']??''); 
+  $phone=h($old['phone']??''); 
+  $cell=h($old['cell']??''); 
+  $email=h($old['email']??'');
   return <<<HTML
 <!doctype html>
 <html lang="pt-br">
@@ -102,7 +175,7 @@ function page_form(string $flash='', array $old=[]): string{
     <form method="post" action="/patients" novalidate>
       <div>
         <label for="name">Nome completo *</label>
-        <input type="text" id="name" name="name" value="{$name}" pattern="^[A-Za-zÀ-ÖØ-öø-ÿ\s]+$" title="O nome deve conter apenas letras e espaços. Sem números ou caracteres especiais." required>
+        <input type="text" id="name" name="name" value="{$name}" required>
       </div>
       <div>
         <label for="birth_date">Data de nascimento</label>
