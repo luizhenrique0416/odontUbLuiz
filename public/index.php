@@ -1,7 +1,9 @@
 <?php
 declare(strict_types=1);
 require __DIR__ . '/../vendor/autoload.php';
-use App\Health; use App\Db;
+use App\Health;
+use App\Db;
+date_default_timezone_set('America/Sao_Paulo');
 
 $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
 $path   = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?: '/';
@@ -38,6 +40,8 @@ if ($method==='POST' && $path==='/patients') {
   $cell=trim($_POST['cellphone']??''); 
   $email=trim($_POST['email']??'');
   $err=[]; 
+  $hoje = new DateTime();
+  $data_atual_formatada = $hoje->format('Y-m-d');
 
   if (mb_strlen($name)<3) 
     $err[]='Nome deve ter ao menos 3 caracteres.'; 
@@ -50,6 +54,9 @@ if ($method==='POST' && $path==='/patients') {
   
   if ($birth!=='' && !preg_match('/^\d{4}-\d{2}-\d{2}$/',$birth)) 
     $err[]='Data no formato YYYY-MM-DD.';
+
+  if ($birth > $data_atual_formatada)
+    $err[] = 'Data de nascimento não pode ser no futuro.';
 
   if ($err){ 
     $msg='<div class="alert error">
