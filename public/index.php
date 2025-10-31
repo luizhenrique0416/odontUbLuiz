@@ -3,7 +3,7 @@ declare(strict_types=1);
 require __DIR__ . '/../vendor/autoload.php';
 use App\Health;
 use App\Db;
-date_default_timezone_set('America/Sao_Paulo');
+date_default_timezone_set('America/Sao_Paulo'); // Define para o fuso horário de São Paulo
 
 $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
 $path   = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?: '/';
@@ -46,7 +46,7 @@ if ($method==='POST' && $path==='/patients') {
   if (mb_strlen($name)<3) 
     $err[]='Nome deve ter ao menos 3 caracteres.'; 
 
-  if ($name !== '' && !preg_match('/^[A-Za-zÀ-ÿ\s]+$/u', $name))
+  if ($name !== '' && !preg_match('/^[A-Za-zÀ-ÿ\s]+$/u', $name)) //Só aceita letras maiúsculas, minúsculas, acentuadas e espaços, não podendo ser nulo
     $err[] = 'Nome deve conter apenas letras e espaços. Sem números ou caracteres especiais.';
   
   if ($email!=='' && !filter_var($email,FILTER_VALIDATE_EMAIL)) 
@@ -216,6 +216,7 @@ function page_form(string $flash='', array $old=[]): string{
   <script type="text/javascript" src="https://code.jquery.com/jquery-migrate-3.5.0.min.js"></script>
   <!-- jQuery Mask Plugin -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.min.js"></script>
+
   <script type="text/javascript" src="assets/js/script.js"></script>
 </body>
 </html>
