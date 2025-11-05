@@ -104,10 +104,14 @@ function page_form(string $flash='', array $old=[]): string{
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="assets/css/reset.css">
     <link rel="stylesheet" href="assets/css/estilo.css">
     <title>Cadastro de Pacientes odontUb V1</title>
 </head>
 <body>
+  <header>
+    <img src="assets/img/logo.png" alt="Logo da Universidade Brasil">
+  </header>
   <div class="container">
     <h1>Cadastro de Pacientes</h1>
     <p class="desc">Preencha seus dados para contato e agendamento.</p>{$flash}
