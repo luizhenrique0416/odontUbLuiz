@@ -118,7 +118,7 @@ function page_form(string $flash='', array $old=[]): string{
     <form method="post" action="/patients" novalidate>
       <div>
         <label for="name">Nome completo *</label>
-        <input type="text" id="name" name="name" value="{$name}" required>
+        <input type="text" id="name" name="name" value="{$name}" placeholder="Nome" required>
       </div>
       <div>
         <label for="birth_date">Data de nascimento</label>
@@ -127,11 +127,11 @@ function page_form(string $flash='', array $old=[]): string{
       <div class="row">
         <div>
           <label for="phone">Telefone (fixo)</label>
-          <input type="tel" id="phone" class="phone" name="phone" value="{$phone}">
+          <input type="tel" id="phone" class="phone" name="phone" placeholder="(00) 0000-0000" value="{$phone}">
         </div>
         <div>
           <label for="cellphone">Celular</label>
-          <input type="tel" id="cellphone" class="cellphone" name="cellphone" value="{$cell}">
+          <input type="tel" id="cellphone" class="cellphone" name="cellphone" placeholder="(00) 90000-0000" value="{$cell}">
         </div>
       </div>
       <div>
