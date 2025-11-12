@@ -41,6 +41,9 @@ final class Auth
         }
 
         if ($ok) {
+            // Troca o id da sessão para impedir session fixation
+            session_regenerate_id(true);
+
             $_SESSION['uid'] = (int)$row['id'];
             $_SESSION['uname'] = (string)$row['username'];
         }
