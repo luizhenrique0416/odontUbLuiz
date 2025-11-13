@@ -22,7 +22,7 @@ if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="stylesheet" href="../assets/css/login.css">
-<title>Login do Estagiário</title>
+<title>Login</title>
 
 <div class="card">
   <h1>Login</h1>
@@ -31,6 +31,5 @@ if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
     <div><input name="username" placeholder="Usuário" required></div>
     <div><input type="password" name="password" placeholder="Senha" required></div>
     <button>Entrar</button>
-    <div class="muted">usuário: <code>estagiario</code> • senha: <code>123456</code></div>
   </form>
 </div>
